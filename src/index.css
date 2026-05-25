@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  
+  --color-nurture-bg: #F9F7F2;
+  --color-nurture-sand: #F0E6D2;
+  --color-nurture-sage: #94A396;
+  --color-nurture-rose: #D4A3A3;
+  --color-nurture-ink: #3D3D3D;
+  --color-nurture-muted: #8E8E8E;
+}
+
+@layer base {
+  body {
+    @apply bg-nurture-bg text-nurture-ink font-sans selection:bg-nurture-rose/20;
+  }
+}
+
+.sandtray-gradient {
+  background: radial-gradient(circle at center, #F0E6D2 0%, #E8DCC4 100%);
+}
+
+.glass-panel {
+  @apply bg-white/40 backdrop-blur-md border border-white/20;
+}
+

@@ -1,0 +1,6 @@
+{
+  "name": "NurtureSpace",
+  "description": "A calming digital sandtray for postpartum emotional expression and gentle AI-guided reflection.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
