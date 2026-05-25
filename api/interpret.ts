@@ -1,47 +1,33 @@
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY || "",
-  httpOptions: { headers: { "User-Agent": "aistudio-build" } },
+  httpOptions: {
+    headers: {
+      "User-Agent": "aistudio-build",
+    },
+  },
 });
 
-function parseBody(req: any): Promise<any> {
-  return new Promise((resolve) => {
-    if (req.body) return resolve(req.body);
-    let body = "";
-    req.on("data", (chunk: string) => { body += chunk; });
-    req.on("end", () => {
-      try { resolve(JSON.parse(body)); }
-      catch { resolve({}); }
-    });
-  });
-}
-
-function sendJson(res: any, status: number, data: any) {
-  res.writeHead(status, { "Content-Type": "application/json" });
-  res.end(JSON.stringify(data));
-}
-
-export default async function handler(req: any, res: any) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
-    res.writeHead(204);
-    return res.end();
+    return res.status(200).end();
   }
 
   if (req.method !== "POST") {
-    return sendJson(res, 405, { error: "Method not allowed" });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const body = await parseBody(req);
-    const { scene, history } = body;
+    const { scene, history } = req.body;
 
     if (!process.env.GEMINI_API_KEY) {
-      return sendJson(res, 500, { error: "Gemini API key is not configured." });
+      return res.status(500).json({ error: "Gemini API key is not configured." });
     }
 
     const prompt = `
@@ -81,12 +67,14 @@ export default async function handler(req: any, res: any) {
     const result = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
-      config: { responseMimeType: "application/json" },
+      config: {
+        responseMimeType: "application/json",
+      },
     });
 
-    sendJson(res, 200, JSON.parse(result.text || "{}"));
+    res.json(JSON.parse(result.text || "{}"));
   } catch (error: any) {
     console.error("AI Error:", error);
-    sendJson(res, 500, { error: "Failed to generate interpretation." });
+    res.status(500).json({ error: "Failed to generate interpretation." });
   }
 }
